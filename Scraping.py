@@ -3,7 +3,7 @@ import pickle
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 
-def brocardi_scraper(law_code, save_scraping=True, path = ''):
+def brocardi_scraper(law_code, save_scraping=True, path = 'data/'):
     print('Scraping started')
     url_root = "https://www.brocardi.it/"
     
