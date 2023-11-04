@@ -3,21 +3,22 @@ import pandas as pd
 import re
 import numpy as np
 import json
+import time
 import Scraping as sc
 
-def dataset_creation(law_code, scraping = False, save_scraping = True, save_dataset = True, ref_all = True, path = "data/"):
-    soups, links = load_data(law_code, scraping, save_scraping, path)
+def dataset_creation(law_source, scraping = False, save_scraping = True, save_dataset = True, ref_all = True, path = "data/dataset/", data = "data/soups/"):
+    soups, links = load_data(law_source, scraping, save_scraping, path=data)
     
-    df = dataset_elaboration(soups, links, save_dataset, ref_all, path)
+    df = dataset_elaboration(law_source, soups, links, save_dataset, ref_all, path)
     
     return df
 
 
-def load_data(law_code, scraping, save_scraping, path = "data/"):
+def load_data(law_source, scraping, save_scraping, path = "data/soups/"):
     if scraping:
-        soups, links = sc.brocardi_scraper(law_code, save_scraping, path)
+        soups, links = sc.brocardi_scraper(law_source, save_scraping, path)
     else:
-        with open(f"{path}{law_code}.pkl", "rb") as f:
+        with open(f"{path}{law_source}.pkl", "rb") as f:
             soups, links = zip(*pickle.load(f))
     
     print('Data loaded correctly')
@@ -34,7 +35,7 @@ def extract_text(body_text):
 
     return paragraph_text
 
-def dataset_elaboration(soups, links, save_dataset, ref_all = True, path='data/'):
+def dataset_elaboration(law_source, soups, links, save_dataset, ref_all = True, path='data/'):
     data = []
 
     for soup, link in zip(soups, links):
@@ -63,11 +64,27 @@ def dataset_elaboration(soups, links, save_dataset, ref_all = True, path='data/'
     print('Dataset created correctly')
 
     if save_dataset:
-        df.to_json(f'{path}{law_code}.json', orient='records')
+        df.to_json(f'{path}{law_source}.json', orient='records')
 
     return df
 
-law_code = "costituzione"
-df = dataset_creation(law_code, scraping = False)
+#-------------------------
+# sources = sc.source_scraper()
 
-print(df)
+with open('data/sources.txt', 'r') as f:
+    law_sources = f.read().replace("'", "\"")
+    
+law_sources = json.loads(law_sources)
+
+for source in law_sources:
+    try:
+        print(source)
+        df = dataset_creation(source, scraping = False)
+        print(f'{source} stored: length {len(df)}')
+    except:
+        print(f'Error with {source}')
+        
+        with open('data/errors.txt', 'a') as f:
+            f.write(source + '\n')
+        continue
+    

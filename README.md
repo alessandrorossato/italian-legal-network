@@ -1,1 +1,1 @@
-The aim of this project is to create a network of relationship between the different law. 
+ This project aims to build a comprehensive network of relationships among Italian laws by leveraging web scraping on the Brocardi website (a repository of Italian legal texts). This project seeks to extract and organize relevant data to establish connections between different legal provisions. 
